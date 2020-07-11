@@ -1,9 +1,12 @@
 [submodule "baselines"]
 	path = baselines
 	url = https://github.com/gilwoolee/baselines.git
+	branch = brpo
 [submodule "brl_gym"]
 	path = brl_gym
 	url = https://github.com/gilwoolee/brl_gym.git
+	branch = master
 [submodule "brl_baselines"]
 	path = brl_baselines
 	url = https://github.com/gilwoolee/brl_baselines.git
+	branch = master
