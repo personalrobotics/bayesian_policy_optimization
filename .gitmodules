@@ -1,0 +1,9 @@
+[submodule "baselines"]
+	path = baselines
+	url = https://github.com/gilwoolee/baselines.git
+[submodule "brl_gym"]
+	path = brl_gym
+	url = https://github.com/gilwoolee/brl_gym.git
+[submodule "brl_baselines"]
+	path = brl_baselines
+	url = https://github.com/gilwoolee/brl_baselines.git
