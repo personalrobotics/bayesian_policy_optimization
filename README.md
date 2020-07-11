@@ -4,7 +4,7 @@ It forks [OpenAI Baselines' tf2 branch](https://github.com/openai/baselines.git)
 
 ## Installation
 
-1. Install Tensorflow 2.2.0
+Install Tensorflow 2.2.0
 
    ```bash
    python -m pip install virtualenv # Install virtualenv. You can use conda instead.
@@ -13,7 +13,7 @@ It forks [OpenAI Baselines' tf2 branch](https://github.com/openai/baselines.git)
    python -m pip install tensorflow==2.2.0
    ```
 
-2. Clone and install this repository
+Clone and install this repository
 
    ```bash
    git clone https://github.com/personalrobotics/bayesian_rl.git
@@ -23,52 +23,29 @@ It forks [OpenAI Baselines' tf2 branch](https://github.com/openai/baselines.git)
    python -m pip install -r requirements.txt
    ```
 
-3. Test your installation. You should be able to run commands in OpenAI Baslines, e.g.
+Test your installation. You should be able to run commands in OpenAI Baslines, e.g.
 
 ```bash
 python -m baselines.run --alg=ppo2 --env=bayes-ContinuousCartPole-v0 --num_timesteps=1e6
 ```
 
-Load and test one of the environments. The API is the same as OpenAI Gym:
-```python
->>> from brl_gym import envs
->>> env = envs.Tiger()
->>> obs = env.reset()
->>> obs, reward, done, info = env.step(env.action_space.sample())
-```
-While the API is the same as a typical OpenAI Gym, the environments in Bayesian RL have latent variables which _can be estimated_ by a Bayes filter. We also provide Bayesian environments under `wrapper_envs` which wraps these environments and corresponding Bayes filters together to output `(observation, belief)`. The wrapper envs are the ones used in BRL algorithms. For every environment in `brl_gym.envs` we have its corresponding wrapper env in `brl_gym.wrapper_envs`:
-
-```python
->>> from brl_gym import wrapper_envs
->>> bayes_env = wrapper_envs.BayesTiger()
->>> obs = bayes_env.reset()
-```
-This produces a longer observation vector than its corresponding environment, as it appends Bayes filter output (belief) to the original observation. 
-
-The list of registered names can be found in `brl_gym/__init__.py`.
-
-
 ## Training with BPO
 To run [Bayesian Policy Optimization](https://arxiv.org/abs/1810.01014) algorithm, we need to provide two additional parameters, 1) `--network=brl_mlp` to use the BPO network as introduced in the paper, and 2) the size of observation dimension. The latter information is used by `brl_mlp` to split up the gym's per-step output into observation and belief.
 
+For example, the following trains BPO agent on for cartpole control.
+
 ```bash
-python -m baselines.run --alg=ppo2 --env=bayes-ContinuousCartPole-v0 --num_timesteps=2e7 --save_path=~/models/bpo-cartpole --network=brl_mlp --obs_dim=4 --num_env 2
-python -m baselines.run --alg=ppo2 --env=bayes-ContinuousCartPole-v0 --num_timesteps=0 --load_path=~/models/bpo-cartpole --network=brl_mlp  --obs_dim=4 --play
+OPENAI_LOGDIR=~/models/cartpole/bpo OPENAI_LOG_FORMAT=tensorboard python -m baselines.run --alg=ppo2 --env=bayes-ContinuousCartPole-v0 --num_timesteps=2e7 --save_path=~/models/bpo-cartpole --network=brl_mlp --obs_dim=4 --num_env 2
 ```
 
-
-For example, try the following:
+To train without the two separate networks (BPO-), you can call ppo2 without specifying the network type (defaults to MLP).
 ```bash
-source /path/to/venv/bin/activate
-
-# BPO-
-OPENAI_LOGDIR=~/models/cartpole/bpo_minus OPENAI_LOG_FORMAT=tensorboard python -m baselines.run --alg=ppo2 --env=bayes-ContinuousCartPole-v0 --num_timesteps=1e6 --save_path=~/models/bayes-cartpole-ppo --num_env 20 --save_interval 3
+OPENAI_LOGDIR=~/models/cartpole/bpo_minus OPENAI_LOG_FORMAT=tensorboard python -m baselines.run --alg=ppo2 --env=bayes-ContinuousCartPole-v0 --num_timesteps=1e6 --save_path=~/models/cartpole-ppo --num_env 2
 ```
-This trains a belief-aware agent with PPO algorithm. The checkpoints are saved in `OPENAI_LOGDIR`  and the checkpoints can be visualized by tensorboard:
+The checkpoints are saved in `OPENAI_LOGDIR`  and the checkpoints can be visualized by tensorboard:
 
 ```bash
-cd ~/models/cartpole/bpo_minus/tb
-tensorboard --logdir=.
+tensorboard --logdir=~/models/cartpole/bpo_minus/tb
 ```
 
 To load the latest checkpoint,
